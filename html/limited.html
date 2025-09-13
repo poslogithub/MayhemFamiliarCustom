@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>MayhemFamiliar リミテッドパック/ピック実況内容カスタマイズ</title>
+    <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid black; padding: 8px; text-align: left; }
+        .radio-group { display: flex; gap: 10px; }
+        .custom-input { width: 400px; }
+    </style>
+</head>
+<body>
+    <h2><a href="https://github.com/poslogithub/MayhemFamiliar/releases/latest">MayhemFamiliar</a> リミテッドパック/ピック実況内容カスタマイズ</h2>
+	
+    <table id="limitedTable">
+        <tr>
+            <td>ドラフトパック</td>
+            <td class="radio-group"><input type="radio" name="Pack" value="default" checked />デフォルト「{packNum}の{pickNum}。」</td>
+            <td class="radio-group"><input type="radio" name="Pack" value="custom" />カスタム<input type="text" class="custom-input" value="{packNum}の{pickNum}。"></td>
+            <td class="radio-group"><input type="radio" name="Pack" value="off" />実況しない</td>
+        </tr>
+        <tr>
+            <td>ドラフトピック</td>
+            <td class="radio-group"><input type="radio" name="Pick" value="default" checked />デフォルト「{name}をピック。」<br />※該当カードが複数存在する場合、カード名間は半角空白で区切られる</td>
+            <td class="radio-group"><input type="radio" name="Pick" value="custom" />カスタム<input type="text" class="custom-input" value="{name}をピック。"></td>
+            <td class="radio-group"><input type="radio" name="Pick" value="off" />実況しない</td>
+        <tr>
+            <td>シールドパックの神話レア</td>
+            <td class="radio-group"><input type="radio" name="Mythic" value="default" checked />デフォルト「神話レアは、{name}。」<br />※該当カードが複数存在する場合、カード名間は半角空白で区切られる</td>
+            <td class="radio-group"><input type="radio" name="Mythic" value="custom" />カスタム<input type="text" class="custom-input" value="神話レアは、{name}。"></td>
+            <td class="radio-group"><input type="radio" name="Mythic" value="off" />実況しない</td>
+        </tr>
+        <tr>
+            <td>シールドパックのレア</td>
+            <td class="radio-group"><input type="radio" name="Rare" value="default" checked />デフォルト「レアは、{name}。」<br />※該当カードが複数存在する場合、カード名間は半角空白で区切られる</td>
+            <td class="radio-group"><input type="radio" name="Rare" value="custom" />カスタム<input type="text" class="custom-input" value="レアは、{name}。"></td>
+            <td class="radio-group"><input type="radio" name="Rare" value="off" />実況しない</td>
+        </tr>
+    </table>
+
+    <br>
+    <button onclick="exportJSON()">エクスポート</button>
+    <button onclick="importJSON()">インポート</button>
+    <input type="file" id="jsonFile" accept=".json" style="display:none;" onchange="handleFileSelect(event)">
+    <textarea id="jsonOutput" rows="10" cols="50" style="display:none;"></textarea>
+
+    <script>
+        function exportJSON() {
+            const data = {};
+            const rows = document.querySelectorAll('#limitedTable tr');
+            rows.forEach(row => {
+                const radios = row.querySelectorAll('input[type="radio"]');
+                const customInput = row.querySelector('.custom-input');
+				let name;
+                let mode = 'default';
+                radios.forEach(radio => {
+                    if (radio.checked) {
+						name = radio.name;
+						mode = radio.value;
+					}
+                });
+                data[name] = {
+                    mode: mode,
+                    text: customInput.value
+                };
+            });
+
+            const json = JSON.stringify(data, null, 2);
+            const blob = new Blob([json], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "CustomDialogues_Limited.json";
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importJSON() {
+            document.getElementById('jsonFile').click();
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const json = JSON.parse(e.target.result);
+                    const rows = document.querySelectorAll('#limitedTable tr');
+                    rows.forEach(row => {
+						const radios = row.querySelectorAll('input[type="radio"]');
+						const customInput = row.querySelector('.custom-input');
+                        const name = radios[0].name;
+                        if (json[name]) {
+                            radios.forEach(radio => {
+                                if (radio.value === json[name].mode) radio.checked = true;
+                            });
+                            customInput.value = json[name].text;
+                        }
+                    });
+                };
+                reader.readAsText(file);
+            }
+        }
+    </script>
+</body>
+</html>

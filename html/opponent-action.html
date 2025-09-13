@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>MayhemFamiliar あなたのアクションの実況内容カスタマイズ</title>
+    <style>
+        body {
+            position: relative; /* 擬似要素の位置基準 */
+            margin: 0;
+            padding: 20px;
+        }
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('mayhem-familier-bg.jpg'); /* 背景画像のパス */
+            background-repeat: repeat; /* 繰り返し表示 */
+            background-size: auto; /* 画像サイズを調整（必要に応じて変更） */
+            opacity: 0.1; /* 背景画像の透明度（0.0～1.0） */
+            z-index: -1; /* コンテンツの背後に配置 */
+        }
+        table { border-collapse: collapse; }
+        tr { border: 1px solid gray; }
+        h2 { white-space: nowrap; }
+        td { padding: 2px; text-align: left; white-space: nowrap; padding-right: 8px; }
+        .header-column { padding: 8px; border: 1px solid gray; }
+        .radio-group { gap: 4px; }
+        .custom-input { width: 200px; }
+    </style>
+</head>
+<body>
+    <h2><a href="https://github.com/poslogithub/MayhemFamiliar/releases/latest">MayhemFamiliar</a> あなたのアクションの実況内容カスタマイズ</h2>
+
+    <p>
+        <button onclick="exportJSON()">エクスポート</button>
+        <button onclick="importJSON()">インポート</button>
+    </p>
+<table id="eventTable">
+    <tr>
+        <td class="header-column">ゲーム開始</td>
+        <td class="radio-group"><input type="radio" name="GameStage_Start" value="default" id="GameStage_Start_default" checked /><label for="GameStage_Start_default">デフォルト<br />「対戦よろしくおねがいします。」</label></td>
+        <td class="radio-group"><input type="radio" name="GameStage_Start" value="custom" id="GameStage_Start_custom" /><label for="GameStage_Start_custom">カスタム<br /><input type="text" class="custom-input" value="対戦よろしくおねがいします。"></label></td>
+        <td class="radio-group"><input type="radio" name="GameStage_Start" value="off" id="GameStage_Start_off" /><label for="GameStage_Start_off">実況しない</label></td>
+    </tr>
+    <tr>
+        <td class="header-column">マリガンチェック</td>
+        <td class="radio-group"><input type="radio" name="GREMessageType_MulliganReq" value="default" id="GREMessageType_MulliganReq_default" checked /><label for="GREMessageType_MulliganReq_default">デフォルト<br />「マリガンチェック。」</label></td>
+        <td class="radio-group"><input type="radio" name="GREMessageType_MulliganReq" value="custom" id="GREMessageType_MulliganReq_custom" /><label for="GREMessageType_MulliganReq_custom">カスタム<br /><input type="text" class="custom-input" value="マリガンチェック。"></label></td>
+        <td class="radio-group"><input type="radio" name="GREMessageType_MulliganReq" value="off" id="GREMessageType_MulliganReq_off" /><label for="GREMessageType_MulliganReq_off">実況しない</label></td>
+    </tr>
+    <tr>
+        <td class="header-column">ゲーム終了</td>
+        <td class="radio-group"><input type="radio" name="GameStage_GameOver" value="default" id="GameStage_GameOver_default" checked /><label for="GameStage_GameOver_default">デフォルト<br />「対戦ありがとうございました。」</label></td>
+        <td class="radio-group"><input type="radio" name="GameStage_GameOver" value="custom" id="GameStage_GameOver_custom" /><label for="GameStage_GameOver_custom">カスタム<br /><input type="text" class="custom-input" value="対戦ありがとうございました。"></label></td>
+        <td class="radio-group"><input type="radio" name="GameStage_GameOver" value="off" id="GameStage_GameOver_off" /><label for="GameStage_GameOver_off">実況しない</label></td>
+    </tr>
+    <tr>
+        <td class="header-column">ターン開始</td>
+        <td class="radio-group"><input type="radio" name="AnnotationType_NewTurnStarted" value="default" id="AnnotationType_NewTurnStarted_default" checked /><label for="AnnotationType_NewTurnStarted_default">デフォルト<br />「こちらのターン。」</label></td>
+        <td class="radio-group"><input type="radio" name="AnnotationType_NewTurnStarted" value="custom" id="AnnotationType_NewTurnStarted_custom" /><label for="AnnotationType_NewTurnStarted_custom">カスタム<br /><input type="text" class="custom-input" value="こちらのターン。"></label></td>
+        <td class="radio-group"><input type="radio" name="AnnotationType_NewTurnStarted" value="off" id="AnnotationType_NewTurnStarted_off" /><label for="AnnotationType_NewTurnStarted_off">実況しない</label></td>
+    </tr>
+    <tr>
+        <td class="header-column">ドロー</td>
+        <td class="radio-group"><input type="radio" name="DrawKnownCard" value="default" id="DrawKnownCard_default" checked /><label for="DrawKnownCard_default">デフォルト<br />「{name}をドロー。」</label></td>
+        <td class="radio-group"><input type="radio" name="DrawKnownCard" value="custom" id="DrawKnownCard_custom" /><label for="DrawKnownCard_custom">カスタム<br /><input type="text" class="custom-input" value="{name}をドロー。"></label></td>
+        <td class="radio-group"><input type="radio" name="DrawKnownCard" value="off" id="DrawKnownCard_off" /><label for="DrawKnownCard_off">実況しない</label></td>
+    </tr>
+    <tr>
+        <td class="header-column">ディスカード</td>
+        <td class="radio-group"><input type="radio" name="Discard" value="default" id="Discard_default" checked /><label for="Discard_default">デフォルト<br />「{name}をディスカード。」</label></td>
+        <td class="radio-group"><input type="radio" name="Discard" value="custom" id="Discard_custom" /><label for="Discard_custom">カスタム<br /><input type="text" class="custom-input" value="{name}をディスカード。"></label></td>
+        <td class="radio-group"><input type="radio" name="Discard" value="off" id="Discard_off" /><label for="Discard_off">実況しない</label></td>
+    </tr>
+    <tr>
+        <td class="header-column">土地のプレイ</td>
+        <td class="radio-group"><input type="radio" name="PlayLand" value="default" id="PlayLand_default" checked /><label for="PlayLand_default">デフォルト<br />「{name}をプレイ。」</label></td>
+        <td class="radio-group"><input type="radio" name="PlayLand" value="custom" id="PlayLand_custom" /><label for="PlayLand_custom">カスタム<br /><input type="text" class="custom-input" value="{name}をプレイ。"></label></td>
+        <td class="radio-group"><input type="radio" name="PlayLand" value="off" id="PlayLand_off" /><label for="PlayLand_off">実況しない</label></td>
+    </tr>
+    <tr>
+        <td class="header-column">呪文のキャスト</td>
+        <td class="radio-group"><input type="radio" name="CastSpell" value="default" id="CastSpell_default" checked /><label for="CastSpell_default">デフォルト<br />「{name}をキャスト。」</label></td>
+        <td class="radio-group"><input type="radio" name="CastSpell" value="custom" id="CastSpell_custom" /><label for="CastSpell_custom">カスタム<br /><input type="text" class="custom-input" value="{name}をキャスト。"></label></td>
+        <td class="radio-group"><input type="radio" name="CastSpell" value="off" id="CastSpell_off" /><label for="CastSpell_off">実況しない</label></td>
+    </tr>
+    <tr>
+        <td class="header-column">ライフ回復</td>
+        <td class="radio-group"><input type="radio" name="GainLife" value="default" id="GainLife_default" checked /><label for="GainLife_default">デフォルト<br />「{diff}点回復して、ライフは{to}。」</label></td>
+        <td class="radio-group"><input type="radio" name="GainLife" value="custom" id="GainLife_custom" /><label for="GainLife_custom">カスタム<br /><input type="text" class="custom-input" value="{diff}点回復して、ライフは{to}。"></label></td>
+        <td class="radio-group"><input type="radio" name="GainLife" value="off" id="GainLife_off" /><label for="GainLife_off">実況しない</label></td>
+    </tr>
+    <tr>
+        <td class="header-column">ライフ減少</td>
+        <td class="radio-group"><input type="radio" name="LoseLife" value="default" id="LoseLife_default" checked /><label for="LoseLife_default">デフォルト<br />「{diff}点受けて、ライフは{to}。」</label></td>
+        <td class="radio-group"><input type="radio" name="LoseLife" value="custom" id="LoseLife_custom" /><label for="LoseLife_custom">カスタム<br /><input type="text" class="custom-input" value="{diff}点受けて、ライフは{to}。"></label></td>
+        <td class="radio-group"><input type="radio" name="LoseLife" value="off" id="LoseLife_off" /><label for="LoseLife_off">実況しない</label></td>
+    </tr>
+    <tr>
+        <td class="header-column">パーマネントの生け贄</td>
+        <td class="radio-group"><input type="radio" name="Sacrifice" value="default" id="Sacrifice_default" checked /><label for="Sacrifice_default">デフォルト<br />「{name}を生け贄に。」</label></td>
+        <td class="radio-group"><input type="radio" name="Sacrifice" value="custom" id="Sacrifice_custom" /><label for="Sacrifice_custom">カスタム<br /><input type="text" class="custom-input" value="{name}を生け贄に。"></label></td>
+        <td class="radio-group"><input type="radio" name="Sacrifice" value="off" id="Sacrifice_off" /><label for="Sacrifice_off">実況しない</label></td>
+    </tr>
+    <tr>
+        <td class="header-column">トークン生成</td>
+        <td class="radio-group"><input type="radio" name="AnnotationType_TokenCreated" value="default" id="AnnotationType_TokenCreated_default" checked /><label for="AnnotationType_TokenCreated_default">デフォルト<br />「{name}を生成。」</label></td>
+        <td class="radio-group"><input type="radio" name="AnnotationType_TokenCreated" value="custom" id="AnnotationType_TokenCreated_custom" /><label for="AnnotationType_TokenCreated_custom">カスタム<br /><input type="text" class="custom-input" value="{name}を生成。"></label></td>
+        <td class="radio-group"><input type="radio" name="AnnotationType_TokenCreated" value="off" id="AnnotationType_TokenCreated_off" /><label for="AnnotationType_TokenCreated_off">実況しない</label></td>
+    </tr>
+    <tr>
+        <td class="header-column">カード創出</td>
+        <td class="radio-group"><input type="radio" name="Conjure" value="default" id="Conjure_default" checked /><label for="Conjure_default">デフォルト<br />「{name}を創出。」</label></td>
+        <td class="radio-group"><input type="radio" name="Conjure" value="custom" id="Conjure_custom" /><label for="Conjure_custom">カスタム<br /><input type="text" class="custom-input" value="{name}を創出。"></label></td>
+        <td class="radio-group"><input type="radio" name="Conjure" value="off" id="Conjure_off" /><label for="Conjure_off">実況しない</label></td>
+    </tr>
+    <tr>
+        <td class="header-column">切削</td>
+        <td class="radio-group"><input type="radio" name="Mill" value="default" id="Mill_default" checked /><label for="Mill_default">デフォルト<br />（実況しない）</label></td>
+        <td class="radio-group"><input type="radio" name="Mill" value="custom" id="Mill_custom" /><label for="Mill_custom">カスタム<br /><input type="text" class="custom-input" value="{name}が切削。"></label></td>
+        <td class="radio-group"></td>
+    </tr>
+    <tr>
+        <td class="header-column">呪文の解決</td>
+        <td class="radio-group"><input type="radio" name="Resolve" value="default" id="Resolve_default" checked /><label for="Resolve_default">デフォルト<br />（実況しない）</label></td>
+        <td class="radio-group"><input type="radio" name="Resolve" value="custom" id="Resolve_custom" /><label for="Resolve_custom">カスタム<br /><input type="text" class="custom-input" value="{name}が解決。"></label></td>
+        <td class="radio-group"></td>
+    </tr>
+    <tr>
+        <td class="header-column">呪文の立ち消え</td>
+        <td class="radio-group"><input type="radio" name="Nil" value="default" id="Nil_default" checked /><label for="Nil_default">デフォルト<br />（実況しない）</label></td>
+        <td class="radio-group"><input type="radio" name="Nil" value="custom" id="Nil_custom" /><label for="Nil_custom">カスタム<br /><input type="text" class="custom-input" value="{name}が立ち消え。"></label></td>
+        <td class="radio-group"></td>
+    </tr>
+    <tr>
+        <td class="header-column">クリーチャーの死亡</td>
+        <td class="radio-group"><input type="radio" name="Die" value="default" id="Die_default" checked /><label for="Die_default">デフォルト<br />「{name}が死亡。」</label></td>
+        <td class="radio-group"><input type="radio" name="Die" value="custom" id="Die_custom" /><label for="Die_custom">カスタム<br /><input type="text" class="custom-input" value="{name}が死亡。"></label></td>
+        <td class="radio-group"><input type="radio" name="Die" value="off" id="Die_off" /><label for="Die_off">実況しない</label></td>
+    </tr>
+    <tr>
+        <td class="header-column">パーマネントの破壊</td>
+        <td class="radio-group"><input type="radio" name="Destroy" value="default" id="Destroy_default" checked /><label for="Destroy_default">デフォルト<br />「{name}が破壊。」</label></td>
+        <td class="radio-group"><input type="radio" name="Destroy" value="custom" id="Destroy_custom" /><label for="Destroy_custom">カスタム<br /><input type="text" class="custom-input" value="{name}が破壊。"></label></td>
+        <td class="radio-group"><input type="radio" name="Destroy" value="off" id="Destroy_off" /><label for="Destroy_off">実況しない</label></td>
+    </tr>
+    <tr>
+        <td class="header-column" title="諜報など">カードを墓地に置く</td>
+        <td class="radio-group"><input type="radio" name="PutGraveyard" value="default" id="PutGraveyard_default" checked /><label for="PutGraveyard_default">デフォルト<br />「{name}を墓地に。」</label></td>
+        <td class="radio-group"><input type="radio" name="PutGraveyard" value="custom" id="PutGraveyard_custom" /><label for="PutGraveyard_custom">カスタム<br /><input type="text" class="custom-input" value="{name}を墓地に。"></label></td>
+        <td class="radio-group"><input type="radio" name="PutGraveyard" value="off" id="PutGraveyard_off" /><label for="PutGraveyard_off">実況しない</label></td>
+    </tr>
+    <tr>
+        <td class="header-column" title="オーラが外れた場合や、プレインズウォーカーの忠誠度が0以下になった場合など">その他の理由で<br />カードが墓地に移動</td>
+        <td class="radio-group"><input type="radio" name="OtherGraveyard" value="default" id="OtherGraveyard_default" checked /><label for="OtherGraveyard_default">デフォルト<br />「{name}が墓地に。」</label></td>
+        <td class="radio-group"><input type="radio" name="OtherGraveyard" value="custom" id="OtherGraveyard_custom" /><label for="OtherGraveyard_custom">カスタム<br /><input type="text" class="custom-input" value="{name}が墓地に。"></label></td>
+        <td class="radio-group"><input type="radio" name="OtherGraveyard" value="off" id="OtherGraveyard_off" /><label for="OtherGraveyard_off">実況しない</label></td>
+    </tr>
+    <tr>
+        <td class="header-column" title="パーマネント呪文の解決は除く">カードが戦場に移動</td>
+        <td class="radio-group"><input type="radio" name="ZoneType_Battlefield" value="default" id="ZoneType_Battlefield_default" checked /><label for="ZoneType_Battlefield_default">デフォルト<br />「{name}が戦場に。」</label></td>
+        <td class="radio-group"><input type="radio" name="ZoneType_Battlefield" value="custom" id="ZoneType_Battlefield_custom" /><label for="ZoneType_Battlefield_custom">カスタム<br /><input type="text" class="custom-input" value="{name}が戦場に。"></label></td>
+        <td class="radio-group"><input type="radio" name="ZoneType_Battlefield" value="off" id="ZoneType_Battlefield_off" /><label for="ZoneType_Battlefield_off">実況しない</label></td>
+    </tr>
+    <tr>
+        <td class="header-column" title="ドローは除く">カードが手札に移動</td>
+        <td class="radio-group"><input type="radio" name="ZoneType_Hand" value="default" id="ZoneType_Hand_default" checked /><label for="ZoneType_Hand_default">デフォルト<br />「{name}を手札に。」</label></td>
+        <td class="radio-group"><input type="radio" name="ZoneType_Hand" value="custom" id="ZoneType_Hand_custom" /><label for="ZoneType_Hand_custom">カスタム<br /><input type="text" class="custom-input" value="{name}を手札に。"></label></td>
+        <td class="radio-group"><input type="radio" name="ZoneType_Hand" value="off" id="ZoneType_Hand_off" /><label for="ZoneType_Hand_off">実況しない</label></td>
+    </tr>
+    <tr>
+        <td class="header-column">カードがライブラリに移動</td>
+        <td class="radio-group"><input type="radio" name="ZoneType_Library" value="default" id="ZoneType_Library_default" checked /><label for="ZoneType_Library_default">デフォルト<br />「{name}をライブラリに。」</label></td>
+        <td class="radio-group"><input type="radio" name="ZoneType_Library" value="custom" id="ZoneType_Library_custom" /><label for="ZoneType_Library_custom">カスタム<br /><input type="text" class="custom-input" value="{name}をライブラリに。"></label></td>
+        <td class="radio-group"><input type="radio" name="ZoneType_Library" value="off" id="ZoneType_Library_off" /><label for="ZoneType_Library_off">実況しない</label></td>
+    </tr>
+    <tr>
+        <td class="header-column">カードが追放領域に移動</td>
+        <td class="radio-group"><input type="radio" name="ZoneType_Exile" value="default" id="ZoneType_Exile_default" checked /><label for="ZoneType_Exile_default">デフォルト<br />「{name}が追放。」</label></td>
+        <td class="radio-group"><input type="radio" name="ZoneType_Exile" value="custom" id="ZoneType_Exile_custom" /><label for="ZoneType_Exile_custom">カスタム<br /><input type="text" class="custom-input" value="{name}が追放。"></label></td>
+        <td class="radio-group"><input type="radio" name="ZoneType_Exile" value="off" id="ZoneType_Exile_off" /><label for="ZoneType_Exile_off">実況しない</label></td>
+    </tr>
+    <tr>
+        <td class="header-column">カードが統率領域に移動</td>
+        <td class="radio-group"><input type="radio" name="ZoneType_Command" value="default" id="ZoneType_Command_default" checked /><label for="ZoneType_Command_default">デフォルト<br />「{name}を統率領域に。」</label></td>
+        <td class="radio-group"><input type="radio" name="ZoneType_Command" value="custom" id="ZoneType_Command_custom" /><label for="ZoneType_Command_custom">カスタム<br /><input type="text" class="custom-input" value="{name}を統率領域に。"></label></td>
+        <td class="radio-group"><input type="radio" name="ZoneType_Command" value="off" id="ZoneType_Command_off" /><label for="ZoneType_Command_off">実況しない</label></td>
+    </tr>
+</table>
+    <p>
+        <button onclick="exportJSON()">エクスポート</button>
+        <button onclick="importJSON()">インポート</button>
+    </p>
+    <input type="file" id="jsonFile" accept=".json" style="display:none;" onchange="handleFileSelect(event)">
+    <textarea id="jsonOutput" rows="10" cols="50" style="display:none;"></textarea>
+
+    <script>
+        // 初期状態でcustom-inputを無効化
+        function initializeInputs() {
+            const rows = document.querySelectorAll('#eventTable tr');
+            rows.forEach(row => {
+                const customRadio = row.querySelector('input[type="radio"][value="custom"]');
+                const customInput = row.querySelector('.custom-input');
+                if (customRadio && customInput) {
+                    customInput.disabled = !customRadio.checked;
+                }
+            });
+        }
+
+        // ラジオボタンの変更時にcustom-inputの有効/無効を切り替え
+        function handleRadioChange() {
+            const radios = document.querySelectorAll('#eventTable input[type="radio"]');
+            radios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const row = this.closest('tr');
+                    const customInput = row.querySelector('.custom-input');
+                    if (customInput) {
+                        customInput.disabled = this.value !== 'custom';
+                    }
+                });
+            });
+        }
+
+        // ページ読み込み時に初期化とイベントリスナーを設定
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeInputs();
+            handleRadioChange();
+        });
+        
+        function exportJSON() {
+            const data = {};
+            const rows = document.querySelectorAll('#eventTable tr');
+            rows.forEach(row => {
+                const radios = row.querySelectorAll('input[type="radio"]');
+                const customInput = row.querySelector('.custom-input');
+                let name;
+                let mode = 'default';
+                radios.forEach(radio => {
+                    if (radio.checked) {
+						name = radio.name;
+						mode = radio.value;
+					}
+                });
+                data[name] = {
+                    mode: mode,
+                    text: customInput.value
+                };
+            });
+
+            const json = JSON.stringify(data, null, 2);
+            const blob = new Blob([json], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "CustomDialogueTexts_You.json";
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importJSON() {
+            document.getElementById('jsonFile').click();
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const json = JSON.parse(e.target.result);
+                    const rows = document.querySelectorAll('#eventTable tr');
+                    rows.forEach(row => {
+                        const radios = row.querySelectorAll('input[type="radio"]');
+                        const customInput = row.querySelector('.custom-input');
+                        const name = radios[0].name;
+                        if (json[name]) {
+                            radios.forEach(radio => {
+                                if (radio.value.toLowerCase() === json[name].mode.toLowerCase()) {
+                                    radio.checked = true;
+                                }
+                            });
+                            if (customInput) {
+                                customInput.value = json[name].text || '';
+                                customInput.disabled = name.mode.toLowerCase() !== 'custom';
+                            }
+                            customInput.value = json[name].text;
+                        }
+                    });
+                };
+                reader.readAsText(file);
+            }
+        }
+    </script>
+</body>
+</html>
