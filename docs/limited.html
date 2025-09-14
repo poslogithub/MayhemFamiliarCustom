@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>MayhemFamiliar リミテッドのパック/ピックの実況内容カスタマイズ</title>
+    <link rel="stylesheet" href="css/common.css" type="text/css" />
+</head>
+<body>
+    <h2><a href="https://github.com/poslogithub/MayhemFamiliar/releases/latest">MayhemFamiliar</a> リミテッドのパック/ピックの実況内容カスタマイズ</h2>
+	
+    <p>
+        <button onclick="exportJSONLimited()">エクスポート</button>
+        <button onclick="importJSON()">インポート</button>
+    </p>
+
+    <table id="eventTable">
+        <tr>
+            <td class="header-column">ドラフトパック</td>
+            <td class="radio-group"><input type="radio" name="Pack" value="default" id="Pack_default" checked /><label for="Pack_default">デフォルト<br />「{packNum}の{pickNum}。」</label></td>
+            <td class="radio-group"><input type="radio" name="Pack" value="custom" id="Pack_custom" /><label for="Pack_custom">カスタム<br /><input type="text" class="custom-input" value="{packNum}の{pickNum}。"></label></td>
+            <td class="radio-group"><input type="radio" name="Pack" value="off" id="Pack_off" /><label for="Pack_off">実況しない</label></td>
+        </tr>
+        <tr>
+            <td class="header-column">ドラフトピック</td>
+            <td class="radio-group"><input type="radio" name="Pick" value="default" id="Pick_default" checked /><label for="Pick_default">デフォルト<br />「{name}をピック。」</label></td>
+            <td class="radio-group"><input type="radio" name="Pick" value="custom" id="Pick_custom" /><label for="Pick_custom">カスタム<br /><input type="text" class="custom-input" value="{name}をピック。"></label></td>
+            <td class="radio-group"><input type="radio" name="Pick" value="off" id="Pick_off" /><label for="Pick_off">実況しない</td>
+        <tr>
+            <td class="header-column">シールドパックの神話レア</td>
+            <td class="radio-group"><input type="radio" name="Mythic" value="default" id="Mythic_default" checked /><label for="Mythic_default">デフォルト<br />「神話レアは、{name}。」</label></td>
+            <td class="radio-group"><input type="radio" name="Mythic" value="custom" id="Mythic_custom" /><label for="Mythic_custom">カスタム<br /><input type="text" class="custom-input" value="神話レアは、{name}。"></label></td>
+            <td class="radio-group"><input type="radio" name="Mythic" value="off" id="Mythic_off" /><label for="Mythic_off">実況しない</label></td>
+        </tr>
+        <tr>
+            <td class="header-column">シールドパックのレア</td>
+            <td class="radio-group"><input type="radio" name="Rare" value="default" id="Rare_default" checked /><label for="Rare_default">デフォルト<br />「レアは、{name}。」</label></td>
+            <td class="radio-group"><input type="radio" name="Rare" value="custom" id="Rare_custom" /><label for="Rare_custom">カスタム<br /><input type="text" class="custom-input" value="レアは、{name}。"></label></td>
+            <td class="radio-group"><input type="radio" name="Rare" value="off" id="Rare_off" /><label for="Rare_off">実況しない</label></td>
+        </tr>
+    </table>
+
+    <p>
+        <button onclick="exportJSONLimited()">エクスポート</button>
+        <button onclick="importJSON()">インポート</button>
+    </p>
+    <input type="file" id="jsonFile" accept=".json" style="display:none;" onchange="handleFileSelect(event)">
+    <textarea id="jsonOutput" rows="10" cols="50" style="display:none;"></textarea>
+
+    <script src="js/common.js"></script></body>
+</html>
